@@ -6,7 +6,7 @@ import { ensureUser } from "@/lib/ensureUser";
 
 const createProject = z.object({
     name: z.string().trim().min(1, "Project name is required").max(80, "Keep it under 80 chars"),
-    prompt: z.string().trim().min(1, "Prompt cannot be empty").max(40000, "Prompt too long"),
+    prompt: z.string().trim().min(1, "Prompt cannot be empty").max(40000, "Prompt too long").optional(),
   });
 
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
             data: {
             userId,
             name,
-            prompt: { create: { content: prompt } },
+            prompt: { create: { content: prompt ?? "" } },
             },
             select: { projectId: true, name: true, createdAt: true }, // minimal, no userId leakage
         });
