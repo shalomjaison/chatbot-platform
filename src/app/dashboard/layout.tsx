@@ -1,5 +1,5 @@
 import UserMenu from "@/components/UserMenu";
-import SidebarNav from "@/components/SidebarNav";
+import SidebarProjects from "@/components/SidebarProjects";
 import MainPanel from "@/components/MainPanel";
 
 export default async function DashboardLayout() {
@@ -9,7 +9,7 @@ export default async function DashboardLayout() {
                 <UserMenu />
             </header>
             <aside className="border-r border-neutral-300 bg-white p-6">
-                <SidebarNav />
+                <SidebarProjects />
             </aside>
             <main   className="bg-white p-6 rounded-tl-xl"> <MainPanel /> </main>
             <footer className="col-span-2 border-t border-neutral-300 bg-white px-6 py-3 text-neutral-600 font-bold">Footer</footer>

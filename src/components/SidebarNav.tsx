@@ -1,12 +1,7 @@
 "use client";
 import { useRouter, useSearchParams} from "next/navigation";
 
-const projects = [
-    { id: "p1", name: "Alpha" },
-    { id: "p2", name: "Beta" },
-];
-
-export default function SidebarNav() {
+export default function SidebarNav({ projects }: { projects: { id: string, name: string }[] }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentProjectId = searchParams.get("projectId");
