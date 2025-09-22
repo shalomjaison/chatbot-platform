@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MessageRole {
+  user
+  assistant
+}
+
+model User {
+  userId    String    @id
+  email     String    @unique    
+  projects  Project[]
+  createdAt DateTime  @default(now())
+}
+
+model Project {
+  projectId   String  @id @default(cuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  name        String
+  prompt      Prompt?
+  messages    Message[]
+  files       ProjectFile[]
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Prompt {
+  promptId  String   @id @default(cuid())
+  projectId String   @unique
+  project   Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  messageId   String      @id @default(cuid())
+  projectId   String
+  project     Project     @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  role        MessageRole // 'User' or 'LLM Agent'
+  content     String
+  createdAt   DateTime    @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+model ProjectFile {
+  fileId          String    @id @default(cuid())
+  projectId       String
+  project         Project   @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  name            String
+  externalFileId  String    // Open AI file Id
+  createdAt       DateTime  @default(now())
+
+  @@index([projectId, createdAt])
+}
