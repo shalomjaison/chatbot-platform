@@ -9,6 +9,44 @@ const createProject = z.object({
     prompt: z.string().trim().min(1, "Prompt cannot be empty").max(40000, "Prompt too long").optional(),
   });
 
+export async function GET(request: NextRequest) {
+    try {
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        console.log("GET /api/projects - Current userId:", userId);
+
+        const projects = await prisma.project.findMany({
+            where: { userId },
+            select: {
+                projectId: true,
+                name: true,
+                createdAt: true,
+                userId: true
+            },
+            orderBy: { createdAt: "desc" }
+        });
+
+        console.log("Found projects:", projects.length, "for userId:", userId);
+
+        const allProjects = await prisma.project.findMany({
+            select: {
+                projectId: true,
+                name: true,
+                userId: true
+            }
+        });
+        console.log("All projects in database:", allProjects);
+
+        return NextResponse.json({ projects });
+    } catch (error) {
+        console.error("GET /api/projects failed:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
+}
+
 
 export async function POST(request: NextRequest) {
     try {
