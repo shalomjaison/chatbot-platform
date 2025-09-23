@@ -7,9 +7,6 @@ const nextConfig: NextConfig = {
     '/dashboard/**': ['./src/generated/prisma/**/*'],
     '/**': ['./src/generated/prisma/query-engine-rhel-openssl-3.0.x'],
   },
-  experimental: {
-    outputFileTracingRoot: '.',
-  },
 };
 
 export default nextConfig;
