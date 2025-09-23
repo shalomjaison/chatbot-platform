@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chatbot Platform (MVP)
 
-## Getting Started
+A minimal chatbot platform that allows users to create projects/agents, associate prompts with these agents, and interact with them through an integrated chat interface.
 
-First, run the development server:
+
+
+## Features
+
+* User authentication & registration (via **Clerk**)
+* Secure login with email & password
+* Create projects/agents under a user
+* Store and associate prompts with each project/agent
+* Chat interface to interact with projects using LLM APIs (Gemini)
+* Persistent message history per project
+* Multi-user support with isolated projects
+* (Good to have) Upload and manage files within a project
+
+---
+
+## Tech Stack
+
+* **Frontend & Backend**: Next.js (App Router)
+* **Database**: PostgreSQL (via Prisma ORM)
+* **Auth**: Clerk (JWT/OAuth2-based)
+* **LLM**: OpenAI Responses API / OpenRouter API
+* **Deployment**: Vercel
+* **Other**: TypeScript, TailwindCSS, Zod
+
+---
+
+## Setup Instructions
+
+### 1. Clone the repo
+
+```bash
+git clone <your-repo-url>
+cd chatbot-platform
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file (or copy `.env.example`) and fill in:
+
+```env
+DATABASE_URL=postgresql://user:password@host:port/dbname
+OPENAI_API_KEY=your_openai_key
+CLERK_PUBLISHABLE_KEY=your_clerk_pk
+CLERK_SECRET_KEY=your_clerk_sk
+```
+
+### 4. Run Prisma migrations
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### 5. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit: `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚢 Deployment (Vercel)
 
-## Learn More
+1. Push your code to GitHub.
+2. Import project in [Vercel](https://vercel.com).
+3. Add environment variables in Vercel dashboard.
+4. Run `npx prisma generate` in a build step if needed.
+5. Use **Prisma Accelerate / Data Proxy** if you encounter connection or engine errors.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎮 Usage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Sign up or log in.
+2. Create a new project/agent.
+3. Add a system prompt.
+4. Open the chat interface and start interacting.
+5. (Optional) Upload files to associate with a project.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🏗️ Architecture Overview
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* **Auth Layer**: Clerk (session tokens, middleware-protected routes)
+* **API Layer**: Next.js route handlers (`/api/projects`, `/api/messages`, `/api/prompts`)
+* **Database**: Postgres schema with `User`, `Project`, `Message`, `Prompt`, `ProjectFile`
+* **LLM Integration**: API calls to OpenAI/OpenRouter with streaming chat responses
+* **Deployment**: Next.js + Prisma on Vercel, NeonDB for Postgres
+
+---
+
+## 📚 Deliverables
+
+* ✅ Source code hosted in GitHub
+* ✅ Setup instructions (this README)
+* ✅ Architecture/design explanation (see `ARCHITECTURE.md`)
+* ✅ Publicly hosted demo: **\[Add Vercel link here]**
+
+---
+
+⚡ Built with care by **Shalom Jaison**
+
+---
+
+Now, to make this **accurate to your project**, I’ll need a few details from you:
+
+1. **Auth** – Are you using Clerk, NextAuth, or custom JWT?
+2. **Database** – Are you on Neon/Postgres or another provider?
+3. **LLM provider** – Which one did you wire up for chat? OpenAI, OpenRouter, or both?
+4. **Deployment status** – Are you targeting Vercel for final hosting?
+
+Once you confirm these, I’ll polish this README and then move on to drafting **ARCHITECTURE.md**.

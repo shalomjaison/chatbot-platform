@@ -74,3 +74,61 @@ const ChatRequest = .object({
   content: z.string().trim().min(1).max(40000)
 });
 ```
+
+# Database Design
+```
+model User {
+  userId    String    @id
+  email     String    @unique
+  createdAt DateTime  @default(now())
+  projects  Project[]
+}
+
+model Project {
+  projectId String        @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime      @default(now())
+  messages  Message[]
+  user      User          @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  files     ProjectFile[]
+  prompt    Prompt?
+
+  @@index([userId, createdAt])
+}
+
+model Prompt {
+  promptId  String   @id @default(cuid())
+  projectId String   @unique
+  content   String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+}
+
+model Message {
+  messageId String      @id @default(cuid())
+  projectId String
+  role      MessageRole
+  content   String
+  createdAt DateTime    @default(now())
+  project   Project     @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+model ProjectFile {
+  fileId         String   @id @default(cuid())
+  projectId      String
+  name           String
+  externalFileId String
+  createdAt      DateTime @default(now())
+  project        Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+enum MessageRole {
+  user
+  assistant
+}
+```
