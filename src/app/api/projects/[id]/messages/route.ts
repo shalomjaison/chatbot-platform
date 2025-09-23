@@ -5,6 +5,8 @@ import { z } from "zod";
 import { geminiComplete } from "@/server/llm/gemini";
 import { toGeminiContents } from "@/server/llm/map";
 
+export const runtime = "nodejs"; 
+
 const ParamsSchema = z.object({
     id: z.string().min(1, "Project ID required"),
 });

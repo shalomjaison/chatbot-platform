@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { ensureUser } from "@/lib/ensureUser";
 
+export const runtime = "nodejs"; 
+
 const createProject = z.object({
     name: z.string().trim().min(1, "Project name is required").max(80, "Keep it under 80 chars"),
     prompt: z.string().trim().min(1, "Prompt cannot be empty").max(40000, "Prompt too long").optional(),
