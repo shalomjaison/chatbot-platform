@@ -1,124 +1,141 @@
-# Chatbot Platform (MVP)
+# README.md
 
-A minimal chatbot platform that allows users to create projects/agents, associate prompts with these agents, and interact with them through an integrated chat interface.
+## Chatbot Platform (MVP)
 
+A minimal chatbot platform where users sign in, create **projects/agents**, attach **prompts**, and chat with them. Backed by **Gemini** for LLM responses, **Clerk** for auth, and **Neon + Prisma** for persistence. Deployed on **Vercel**.
 
+**Public demo:** [https://chatbot-platform-ecru.vercel.app](https://chatbot-platform-ecru.vercel.app)
 
-## Features
+### ✅ Features
 
-* User authentication & registration (via **Clerk**)
-* Secure login with email & password
-* Create projects/agents under a user
-* Store and associate prompts with each project/agent
-* Chat interface to interact with projects using LLM APIs (Gemini)
-* Persistent message history per project
-* Multi-user support with isolated projects
-* (Good to have) Upload and manage files within a project
+* Authentication & registration with **Clerk**
+* Create/read/update projects (agents) per user
+* Associate a **system prompt** per project
+* Chat UI with **persistent message history**
+* LLM responses via **Google Gemini API**
+* Multi-user isolation at the DB level
+* (Nice to have) File uploads per project (scaffold ready)
+
+### 🧰 Tech Stack
+
+* **Next.js (App Router)**, **TypeScript**, **Tailwind**
+* **Clerk** (middleware-protected routes)
+* **Prisma** ORM + **Neon/Postgres**
+* **Google Gemini** (`generative-language` / `ai.google.com` key)
+* **Zod** (validation)
+* **Vercel** (deployment)
 
 ---
 
-## Tech Stack
+## Getting Started
 
-* **Frontend & Backend**: Next.js (App Router)
-* **Database**: PostgreSQL (via Prisma ORM)
-* **Auth**: Clerk (JWT/OAuth2-based)
-* **LLM**: OpenAI Responses API / OpenRouter API
-* **Deployment**: Vercel
-* **Other**: TypeScript, TailwindCSS, Zod
-
----
-
-## Setup Instructions
-
-### 1. Clone the repo
+### 1) Clone & install
 
 ```bash
 git clone <your-repo-url>
 cd chatbot-platform
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
 ```
 
-### 3. Configure environment variables
+### 2) Environment variables
 
-Create a `.env` file (or copy `.env.example`) and fill in:
+Create `.env` (or copy `.env.example`) and fill the values:
 
 ```env
-DATABASE_URL=postgresql://user:password@host:port/dbname
-OPENAI_API_KEY=your_openai_key
-CLERK_PUBLISHABLE_KEY=your_clerk_pk
-CLERK_SECRET_KEY=your_clerk_sk
+# Database
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DB?sslmode=require"
+
+# Clerk
+CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+
+# Google Gemini
+GEMINI_API_KEY="AIza..."
+
+# Next.js
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-### 4. Run Prisma migrations
+> Tip: in Neon, enable SSL and use the connection string with `sslmode=require`.
+
+### 3) Prisma
 
 ```bash
 npx prisma migrate dev
 npx prisma generate
 ```
 
-### 5. Start the development server
+### 4) Run locally
 
 ```bash
 npm run dev
 ```
 
-Visit: `http://localhost:3000`
+Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🚢 Deployment (Vercel)
+## Usage (MVP Flow)
 
-1. Push your code to GitHub.
-2. Import project in [Vercel](https://vercel.com).
-3. Add environment variables in Vercel dashboard.
-4. Run `npx prisma generate` in a build step if needed.
-5. Use **Prisma Accelerate / Data Proxy** if you encounter connection or engine errors.
-
----
-
-## 🎮 Usage
-
-1. Sign up or log in.
-2. Create a new project/agent.
-3. Add a system prompt.
-4. Open the chat interface and start interacting.
-5. (Optional) Upload files to associate with a project.
+1. **Sign up / Sign in** (Clerk).
+2. **Create Project** (agent) → give it a name.
+3. **Add/Update System Prompt** for the project.
+4. **Open Chat** → send messages → Gemini responds.
+5. (Optional) Manage files for that project (if you enable the route).
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture (Quick)
 
-* **Auth Layer**: Clerk (session tokens, middleware-protected routes)
-* **API Layer**: Next.js route handlers (`/api/projects`, `/api/messages`, `/api/prompts`)
-* **Database**: Postgres schema with `User`, `Project`, `Message`, `Prompt`, `ProjectFile`
-* **LLM Integration**: API calls to OpenAI/OpenRouter with streaming chat responses
-* **Deployment**: Next.js + Prisma on Vercel, NeonDB for Postgres
+* **Auth**: Clerk protects routes via middleware in `src/` (App Router).
+* **API**: Next.js route handlers (`/api/projects`, `/api/messages`, `/api/prompts`).
+* **DB**: Postgres via Prisma models: `User`, `Project`, `Message`, `Prompt`, `ProjectFile`.
+* **LLM**: Server route calls Gemini with system + user messages; responses stored as `assistant`.
+* **Deploy**: Next.js on Vercel; Neon for Postgres.
 
----
-
-## 📚 Deliverables
-
-* ✅ Source code hosted in GitHub
-* ✅ Setup instructions (this README)
-* ✅ Architecture/design explanation (see `ARCHITECTURE.md`)
-* ✅ Publicly hosted demo: **\[Add Vercel link here]**
+See **ARCHITECTURE.md** for diagrams, indexes, and NFRs.
 
 ---
 
-⚡ Built with care by **Shalom Jaison**
+## Deployment (Vercel)
+
+1. Connect the GitHub repo in Vercel.
+2. Set all **Environment Variables** in *Project Settings → Environment Variables* (Production & Preview).
+3. **Build command**: (default) `next build`
+   **Install command**: (default) `npm install`
+   **Output**: (default) `.vercel/output` handled by Next.js
+4. Ensure Prisma client is generated during build (automatic with postinstall).
+5. Point **Production Domain** to: `chatbot-platform-ecru.vercel.app`.
+
+### Common pitfalls & fixes
+
+* **“Prisma Client could not locate the Query Engine …”**
+
+  * Keep Prisma client **in the default Node runtime** (not Edge).
+  * Ensure `node_modules/.prisma/client` is present after build (Vercel does this by default).
+  * Avoid importing Prisma in Edge routes. Mark LLM routes as **Node (runtime: 'nodejs')** if needed.
+* **Auth not gating pages**
+
+  * The **middleware must live under `src/`** for App Router.
+  * Add a matcher that protects your `(protected)` group or `/dashboard` routes.
+* **Neon connection limits**
+
+  * Prefer short-lived connections; ensure you aren’t creating multiple Prisma clients.
+  * Use a singleton Prisma client and enable pooling (Neon handles pooling via serverless driver if you adopt it later).
 
 ---
 
-Now, to make this **accurate to your project**, I’ll need a few details from you:
+## Status & Roadmap
 
-1. **Auth** – Are you using Clerk, NextAuth, or custom JWT?
-2. **Database** – Are you on Neon/Postgres or another provider?
-3. **LLM provider** – Which one did you wire up for chat? OpenAI, OpenRouter, or both?
-4. **Deployment status** – Are you targeting Vercel for final hosting?
+* Auth, Projects, Prompts, Chat
+* DB persistence & multi-user isolation
+* File uploads (scaffold)
+* Streaming responses (Gemini → UI stream)
+* Analytics & admin dashboard
+* Project sharing/collaboration
 
-Once you confirm these, I’ll polish this README and then move on to drafting **ARCHITECTURE.md**.
+---
+
+## License
+
+MIT (or your choice)

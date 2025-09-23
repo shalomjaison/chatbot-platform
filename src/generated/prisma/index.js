@@ -26,7 +26,7 @@ const {
   Public,
   getRuntime,
   createParam,
-} = require('./runtime/library.js')
+} = require('./runtime/binary.js')
 
 
 const Prisma = {}
@@ -165,7 +165,7 @@ const config = {
       "fromEnvVar": null
     },
     "config": {
-      "engineType": "library"
+      "engineType": "binary"
     },
     "binaryTargets": [
       {
@@ -202,8 +202,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/prisma\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  userId    String    @id\n  email     String    @unique\n  createdAt DateTime  @default(now())\n  projects  Project[]\n}\n\nmodel Project {\n  projectId String        @id @default(cuid())\n  userId    String\n  name      String\n  createdAt DateTime      @default(now())\n  messages  Message[]\n  user      User          @relation(fields: [userId], references: [userId], onDelete: Cascade)\n  files     ProjectFile[]\n  prompt    Prompt?\n\n  @@index([userId, createdAt])\n}\n\nmodel Prompt {\n  promptId  String   @id @default(cuid())\n  projectId String   @unique\n  content   String\n  createdAt DateTime @default(now())\n  project   Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)\n}\n\nmodel Message {\n  messageId String      @id @default(cuid())\n  projectId String\n  role      MessageRole\n  content   String\n  createdAt DateTime    @default(now())\n  project   Project     @relation(fields: [projectId], references: [projectId], onDelete: Cascade)\n\n  @@index([projectId, createdAt])\n}\n\nmodel ProjectFile {\n  fileId         String   @id @default(cuid())\n  projectId      String\n  name           String\n  externalFileId String\n  createdAt      DateTime @default(now())\n  project        Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)\n\n  @@index([projectId, createdAt])\n}\n\nenum MessageRole {\n  user\n  assistant\n}\n",
-  "inlineSchemaHash": "90512d502fe2dceaeac4fad37a638d799759ea60078b960bd4965486abb42b5f",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/prisma\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n  engineType    = \"binary\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  userId    String    @id\n  email     String    @unique\n  createdAt DateTime  @default(now())\n  projects  Project[]\n}\n\nmodel Project {\n  projectId String        @id @default(cuid())\n  userId    String\n  name      String\n  createdAt DateTime      @default(now())\n  messages  Message[]\n  user      User          @relation(fields: [userId], references: [userId], onDelete: Cascade)\n  files     ProjectFile[]\n  prompt    Prompt?\n\n  @@index([userId, createdAt])\n}\n\nmodel Prompt {\n  promptId  String   @id @default(cuid())\n  projectId String   @unique\n  content   String\n  createdAt DateTime @default(now())\n  project   Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)\n}\n\nmodel Message {\n  messageId String      @id @default(cuid())\n  projectId String\n  role      MessageRole\n  content   String\n  createdAt DateTime    @default(now())\n  project   Project     @relation(fields: [projectId], references: [projectId], onDelete: Cascade)\n\n  @@index([projectId, createdAt])\n}\n\nmodel ProjectFile {\n  fileId         String   @id @default(cuid())\n  projectId      String\n  name           String\n  externalFileId String\n  createdAt      DateTime @default(now())\n  project        Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)\n\n  @@index([projectId, createdAt])\n}\n\nenum MessageRole {\n  user\n  assistant\n}\n",
+  "inlineSchemaHash": "ecacb95a38a0eb4762a373330bd9cdb1d26b111347cbba2dfd8b829ac37a2109",
   "copyEngine": true
 }
 
@@ -230,7 +230,7 @@ config.engineWasm = undefined
 config.compilerWasm = undefined
 
 
-const { warnEnvConflicts } = require('./runtime/library.js')
+const { warnEnvConflicts } = require('./runtime/binary.js')
 
 warnEnvConflicts({
     rootEnvPath: config.relativeEnvPaths.rootEnvPath && path.resolve(config.dirname, config.relativeEnvPaths.rootEnvPath),
@@ -242,12 +242,12 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "src/generated/prisma/query_engine-windows.dll.node")
+path.join(__dirname, "query-engine-windows");
+path.join(process.cwd(), "src/generated/prisma/query-engine-windows")
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "libquery_engine-rhel-openssl-3.0.x.so.node");
-path.join(process.cwd(), "src/generated/prisma/libquery_engine-rhel-openssl-3.0.x.so.node")
+path.join(__dirname, "query-engine-rhel-openssl-3.0.x");
+path.join(process.cwd(), "src/generated/prisma/query-engine-rhel-openssl-3.0.x")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "src/generated/prisma/schema.prisma")
